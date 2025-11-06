@@ -28,7 +28,7 @@ def valid_username(url, usernames):
             if len(response_user._content) != 2994:
                 valid_usernames.append(username)
                 print("\nValid Username: {}".format(','.join(valid_usernames)))
-                # return valid_usernames
+                break
      
     print(f"\n[*] All valid usernames: {', '.join(valid_usernames)}")
     return valid_usernames
